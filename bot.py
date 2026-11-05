@@ -1,4 +1,5 @@
 import os
+import asyncio
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (
     ApplicationBuilder,
@@ -105,7 +106,17 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     print("Bot is running...")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            pass
+        else:
+            app.run_polling(allowed_updates=Update.ALL_TYPES)
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
     main()
