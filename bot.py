@@ -43,7 +43,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data['history'] = history_text
         
         # 👉 ဒီနေရာမှာ ခင်ဗျားရဲ့ ဖော်မြူလာတွက်ချက်မှု ထည့်ရပါမယ်။
-        # ဥပမာအနေနဲ့ B လို့ ထွက်တယ်လို့ သတ်မှတ်ထားပါတယ်။
         calculated_result = "B (Big)" 
         
         # နိုင်သည် / ရှုံးသည် Button များပြမည်
@@ -106,8 +105,7 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     print("Bot is running...")
-    app.run_polling()
+    app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == '__main__':
     main()
-
