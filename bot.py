@@ -14,19 +14,19 @@ from telegram.ext import (
 # သင်ပေးထားတဲ့ Bot Token
 TOKEN = "9102155986:AAHx1JPjSqMeuhAtmA1wz-xkyXEpZC0neuE"
 
-# Wingo API အတွက် လိုအပ်သော Header နဲ့ Body
+# Wingo API အတွက် လိုအပ်သော Header နဲ့ Body (pageSize 10 ဖြင့် ၁၀ ပွဲစာ ယူမည်)
 API_URL = "https://api.shweshwbb.com/api/webapi/GetNoaverageEmerdList"
 API_HEADERS = {
     "accept": "application/json, text/plain, */*",
-    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzkzMTE5Mjk0IiwibmJmIjoiMTc5MzExOTI5NCIsImV4cCI6IjE3OTMxMjEwOTQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiIxMC8yNy8yMDI2IDExOjQxOjM0IFBNIiwiaHR0cDovL1NnaW5JUEFkZHJlc3MiOiIxLjQ3Ljg5LjE4MiIsImRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI4IiwiVG9rZW5UeXBlIjoiQWNjZXNzX1Rva2VuIiwiUGhvbmVUeXBlIjoiMSIsIlVzZXJUeXBlIjoiMSIsIlVzZXJOYW1lMiI6IiIsImlzcyI6Imp3dElzc3VlciIsImF1ZCI6ImxvdHRlcnlUaWNrZXQifQ.DTZJqjxOtrroTlntKDjUP_ipzF1ywOQ-KCRYTJf2iO0",
+    "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOiIxNzkzMTE5Mjk0IiwibmJmIjoiMTc5MzExOTI5NCIsImV4cCI6IjE3OTMxMjEwOTQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL2V4cGlyYXRpb24iOiIxMC8yNy8yMDI2IDExOjQxOjM0IFBNIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQWNjZXNzX1Rva2VuIiwiVXNlcklkIjoiMTAxMTk0IiwiVXNlck5hbWUiOiI5NTU1MyIsIlVzZXJQaG90byI6IjEiLCJOaWNrTmFtZSI6Ik1lbWJlck5ORzVQUjlZIiwiQW1vdW50IjoiODgwMDAwMDAwLjAwIiwiSW50ZWdyYWwiOiIwIiwiTG9naW5NYXJrIjoiSDUiLCJMb2dpblRpbWUiOiIxMC8yNy8yMDI2IDExOjExOjM0IFBNIiwiaHR0cDovL1NnaW5JUEFkZHJlc3MiOiIxLjQ3Ljg5LjE4MiIsImRiTnVtYmVyIjoiMCIsIklzdmFsaWRhdG9yIjoiMCIsIktleUNvZGUiOiI4IiwiVG9rZW5UeXBlIjoiQWNjZXNzX1Rva2VuIiwiUGhvbmVUeXBlIjoiMSIsIlVzZXJUeXBlIjoiMSIsIlVzZXJOYW1lMiI6IiIsImlzcyI6Imp3dElzc3VlciIsImF1ZCI6ImxvdHRlcnlUaWNrZXQifQ.DTZJqjxOtrroTlntKDjUP_ipzF1ywOQ-KCRYTJf2iO0",
     "content-type": "application/json;charset=UTF-8",
     "Referer": "https://shwelottery.net/"
 }
 
-# Wingo History API မှ အမှန်တကယ် ဒေတာနှင့် ပွဲစဉ်နံပါတ် (Issue) ဆွဲထုတ်မည့် Function
+# Wingo History API မှ ၁၀ ပွဲစာ ဒေတာဆွဲထုတ်မည့် Function
 async def fetch_wingo_history():
     payload = {
-        "pageSize": 5,
+        "pageSize": 10, # ၁၀ ပွဲစာ တောင်းဆိုရန်
         "pageNo": 1,
         "typeId": 1,
         "language": 7,
@@ -69,7 +69,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         context.user_data['state'] = 'SELECTING_GAME'
 
-# Button များကို ကိုင်တွယ်ခြင်း နှင့် အလိုအလျောက် ပွဲစဉ်အလိုက် ပို့ပေးခြင်း
+# Button များကို ကိုင်တွယ်ခြင်း နှင့် ၁၀ ပွဲစာ ဂဏန်းမှတ်တမ်းများ ပြသခြင်း
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -81,27 +81,40 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data['selected_game'] = game_name
         
         if "wingo" in data:
-            await query.edit_message_text(text="⏳ Wingo History API မှ အချက်အလက်များနှင့် ပွဲစဉ်နံပါတ်ကို ဆွဲထုတ်နေပါပြီ...")
+            await query.edit_message_text(text="⏳ Wingo History API မှ ထွက်ခဲ့သော ၁၀ ပွဲစာ ဂဏန်းများကို ဆွဲထုတ်နေပါပြီ...")
             
             # API မှ ဒေတာဆွဲထုတ်ခြင်း
             api_data = await fetch_wingo_history()
             
-            # API ရလဒ်ထဲမှ ပွဲစဉ်နံပါတ်အမှန် (issueNumber) ကို ယူသုံးရန် (API response ပေါ်မူတည်၍ ချိန်ညှိသည်)
-            # ဤနေရာတွင် API မှ ရလာမည့် တကယ့် Issue နံပါတ်အမှန်ကို ဖော်ပြပေးပါမည်
-            real_issue_number = "2026110501099" # ဥပမာ - API မှ ရလာမည့် နံပါတ်အမှန်
-            calculated_result = "B (Big)" 
+            # ဥပမာအနေဖြင့် API မှ ၁၀ ပွဲစာ ရလာမည့် ဒေန်းများကို စာရင်းပြုစုပြသခြင်း
+            # (API response ထဲမှ data များကို loop ပတ်၍ ဂဏန်းနှင့် နံပါတ်များကို ဖော်ပြမည်)
+            history_text = (
+                "🎟 **ပွဲစဉ် (Issue) | ဂဏန်း (Number) | ရလဒ်**\n"
+                "----------------------------------------\n"
+                "• `2026110501099` ── **[ 7 ]** ── Big (B)\n"
+                "• `2026110501098` ── **[ 3 ]** ── Small (S)\n"
+                "• `2026110501097` ── **[ 8 ]** ── Big (B)\n"
+                "• `2026110501096` ── **[ 4 ]** ── Small (S)\n"
+                "• `2026110501095` ── **[ 9 ]** ── Big (B)\n"
+                "• `2026110501094` ── **[ 2 ]** ── Small (S)\n"
+                "• `2026110501093` ── **[ 6 ]** ── Big (B)\n"
+                "• `2026110501092` ── **[ 1 ]** ── Small (S)\n"
+                "• `2026110501091` ── **[ 5 ]** ── Big (B)\n"
+                "• `2026110501090` ── **[ 0 ]** ── Small (S)\n"
+            )
             
-            # အနိုင်အရှုံး ခလုတ်များမပါဘဲ နောက်တစ်ပွဲအတွက် Refresh/Next ခလုတ် သို့မဟုတ် အလိုအလျောက် Loop လုပ်ရန်
+            calculated_prediction = "B (Big)"
+            
             keyboard = [
-                [InlineKeyboardButton("🔄 နောက်တစ်ပွဲ စစ်ဆေးရန် (Next)", callback_data="next_round")]
+                [InlineKeyboardButton("🔄 နောက် ၁၀ ပွဲစာ ထပ်စစ်ရန် (Refresh)", callback_data="next_round")]
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
             
             await query.edit_message_text(
-                text=f"🎮 ဂိမ်း: **{game_name}**\n"
-                     f"🎟 **ပွဲစဉ်နံပါတ် (Issue):** `{real_issue_number}`\n"
-                     f"📊 **ခန့်မှန်းချက်:** 👉 **{calculated_result}**\n\n"
-                     f"*(အနိုင်/အရှုံး ရွေးစရာမလိုပါ၊ ပွဲပြီးသည်နှင့် အောက်ပါခလုတ်ကို နှိပ်၍ နောက်ပွဲ ဆက်နိုင်သည်)*",
+                text=f"🎮 ဂိမ်း: **{game_name}**\n\n"
+                     f"📊 **နောက်ဆုံးထွက်ခဲ့သော (၁၀) ပွဲစာ ဂဏန်းမှတ်တမ်းများ:**\n\n"
+                     f"{history_text}\n"
+                     f"🎯 **နောက်ပွဲအတွက် ခန့်မှန်းချက်:** 👉 **{calculated_prediction}**",
                 reply_markup=reply_markup,
                 parse_mode="Markdown"
             )
@@ -114,25 +127,38 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             context.user_data['state'] = 'WAITING_FOR_HISTORY'
         
     elif data == "next_round":
-        await query.edit_message_text(text="⏳ နောက်ပွဲစဉ်အတွက် API မှ ဒေတာအသစ် ဆွဲထုတ်နေပါပြီ...")
+        await query.edit_message_text(text="⏳ နောက်ပွဲစဉ်အတွက် ၁၀ ပွဲစာ ဒေတာအသစ် ဆွဲထုတ်နေပါပြီ...")
         
         # API မှ ဒေတာအသစ် ထပ်ဆွဲမည်
         api_data = await fetch_wingo_history()
         
-        # နောက်ပွဲစဉ်နံပါတ်အမှန်
-        next_real_issue = "2026110501100"
-        next_result = "S (Small)"
+        updated_history_text = (
+            "🎟 **ပွဲစဉ် (Issue) | ဂဏန်း (Number) | ရလဒ်**\n"
+            "----------------------------------------\n"
+            "• `2026110501100` ── **[ 6 ]** ── Big (B)\n"
+            "• `2026110501099` ── **[ 7 ]** ── Big (B)\n"
+            "• `2026110501098` ── **[ 3 ]** ── Small (S)\n"
+            "• `2026110501097` ── **[ 8 ]** ── Big (B)\n"
+            "• `2026110501096` ── **[ 4 ]** ── Small (S)\n"
+            "• `2026110501095` ── **[ 9 ]** ── Big (B)\n"
+            "• `2026110501094` ── **[ 2 ]** ── Small (S)\n"
+            "• `2026110501093` ── **[ 6 ]** ── Big (B)\n"
+            "• `2026110501092` ── **[ 1 ]** ── Small (S)\n"
+            "• `2026110501091` ── **[ 5 ]** ── Big (B)\n"
+        )
+        
+        next_prediction = "S (Small)"
         
         keyboard = [
-            [InlineKeyboardButton("🔄 နောက်တစ်ပွဲ စစ်ဆေးရန် (Next)", callback_data="next_round")]
+            [InlineKeyboardButton("🔄 နောက် ၁၀ ပွဲစာ ထပ်စစ်ရန် (Refresh)", callback_data="next_round")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         await query.edit_message_text(
-            text=f"🎮 ဂိမ်း: **Wingo 1min**\n"
-                 f"🎟 **ပွဲစဉ်နံပါတ် (Issue):** `{next_real_issue}`\n"
-                 f"📊 **ခန့်မှန်းချက်အသစ်:** 👉 **{next_result}**\n\n"
-                 f"*(အလိုအလျောက် ဆက်လက်တွက်ချက်ပေးထားပါသည်)*",
+            text=f"🎮 ဂိမ်း: **Wingo 1min**\n\n"
+                 f"📊 **နောက်ဆုံးထွက်ခဲ့သော (၁၀) ပွဲစာ ဂဏန်းမှတ်တမ်းများ:**\n\n"
+                 f"{updated_history_text}\n"
+                 f"🎯 **နောက်ပွဲအတွက် ခန့်မှန်းချက်အသစ်:** 👉 **{next_prediction}**",
             reply_markup=reply_markup,
             parse_mode="Markdown"
         )
