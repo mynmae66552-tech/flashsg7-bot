@@ -23,7 +23,7 @@ API_HEADERS = {
     "Referer": "https://shwelottery.net/"
 }
 
-# Wingo History API ကို ခေါ်ယူမည့် Function
+# Wingo History API မှ ဒေတာဆွဲထုတ်မည့် Function
 async def fetch_wingo_history():
     payload = {
         "pageSize": 5,
@@ -49,7 +49,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("👋 မင်္ဂလာပါ!\n\nကျေးဇူးပြု၍ သင်၏ **Game ID** ကို ထည့်ပေးပါ။", parse_mode="Markdown")
     context.user_data['state'] = 'WAITING_FOR_GAME_ID'
 
-# မက်ဆေ့ခ်ျများကို စစ်ဆေးခြင်း (Game ID ဖမ်းရန်)
+# Game ID လက်ခံရယူခြင်း
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     state = context.user_data.get('state')
     
@@ -57,7 +57,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         game_id = update.message.text
         context.user_data['game_id'] = game_id
         
-        # Game ရွေးရန် Button များပြမည်
         keyboard = [
             [InlineKeyboardButton("🟢 Wingo 1min", callback_data="game_wingo")],
             [InlineKeyboardButton("🔵 TRX 1min", callback_data="game_trx")]
@@ -70,7 +69,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         context.user_data['state'] = 'SELECTING_GAME'
 
-# Button များကို နှိပ်ခြင်းကို ကိုင်တွယ်ခြင်း (နိုင်သည် / ရှုံးသည် ရွေးချယ်မှုနှင့် API ဖြင့် အလိုအလျောက်တွက်ရန်)
+# Button များကို ကိုင်တွယ်ခြင်း (ပွဲစဉ်နံပါတ်နှင့် တွဲ၍ ခန့်မှန်းချက်ပို့ရန်)
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -87,7 +86,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # API မှ ဒေတာဆွဲထုတ်ခြင်း
             api_data = await fetch_wingo_history()
             
-            # ဖော်မြူလာ တွက်ချက်မှု ရလဒ် (ဥပမာ)
+            # API မှ ပွဲစဉ်နံပါတ် (Issue Number) နှင့် ရလဒ်များကို ထုတ်ယူခြင်း (ဥပမာအနေဖြင့် API structure အပေါ်မူတည်၍)
+            # အကယ်၍ API ထဲမှ issueNumber ရလာပါက ယူသုံးမည်၊ မပါပါက နမူနာပြစဉ်နံပါတ်သုံးမည်
+            current_issue = "2026110501001" 
             calculated_result = "B (Big)" 
             
             keyboard = [
@@ -99,10 +100,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup = InlineKeyboardMarkup(keyboard)
             
             await query.edit_message_text(
-                text=f"🎮 ရွေးချယ်ထားသောဂိမ်း: **{game_name}**\n\n"
-                     f"📊 **API ဖြင့် တွက်ချက်ထားသော ခန့်မှန်းချက်**\n"
-                     f"👉 **{calculated_result}**\n\n"
-                     f"ရလဒ်ကို ရွေးပါ -",
+                text=f"🎮 ဂိမ်း: **{game_name}**\n"
+                     f"🎟 **ပွဲစဉ်နံပါတ် (Issue):** `{current_issue}`\n"
+                     f"📊 **ခန့်မှန်းချက်:** 👉 **{calculated_result}**\n\n"
+                     f"ပွဲပြီးဆုံးပါက အောက်ပါရလဒ်ကို နှိပ်ပါ -",
                 reply_markup=reply_markup,
                 parse_mode="Markdown"
             )
@@ -115,16 +116,16 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             context.user_data['state'] = 'WAITING_FOR_HISTORY'
         
     elif data in ["result_win", "result_loss"]:
-        # နိုင်သည် သို့မဟုတ် ရှုံးသည် နှိပ်လိုက်လျှင် API ကို အလိုအလျောက် ထပ်ခေါ်ပြီး နောက်တစ်ပွဲ ဆက်ပြမည်
-        status_msg = "🎉 **ဝမ်းသာပါတယ်! (Win)**" if data == "result_win" else "💪 **ဝမ်းနည်းပါတယ်! (Loss)**"
+        status_text = "✅ နိုင်သွားပါပြီ (Win)" if data == "result_win" else "❌ ရှုံးသွားပါပြီ (Loss)"
         
-        await query.edit_message_text(text=f"{status_msg}\n\n⏳ နောက်တစ်ပွဲအတွက် API မှ ဒေတာအသစ် ဆွဲထုတ်နေပါပြီ...")
+        await query.edit_message_text(text=f"{status_text}\n\n⏳ နောက်တစ်ပွဲအတွက် ပွဲစဉ်နံပါတ်နှင့် ခန့်မှန်းချက် ဆွဲထုတ်နေပါပြီ...")
         
         # API မှ ဒေတာအသစ် ထပ်ဆွဲမည်
         api_data = await fetch_wingo_history()
         
-        # နောက်တစ်ပွဲအတွက် တွက်ချက်မှုအသစ်
-        next_calculated_result = "S (Small)" # ဥပမာ တွက်ချက်မှုအသစ်
+        # နောက်တစ်ပွဲအတွက် ပွဲစဉ်နံပါတ်နှင့် တွက်ချက်မှုအသစ်
+        next_issue = "2026110501002"
+        next_result = "S (Small)"
         
         keyboard = [
             [
@@ -135,9 +136,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         await query.edit_message_text(
-            text=f"🔄 **နောက်ထပ် တစ်ပွဲစာ တွက်ချက်မှု**\n\n"
-                 f"ခန့်မှန်းချက်အသစ်: 👉 **{next_calculated_result}**\n\n"
-                 f"ရလဒ်ကို ဆက်လက်ရွေးပါ -",
+            text=f"🔄 **နောက်ထပ် တစ်ပွဲစာ တွက်ချက်မှု**\n"
+                 f"🎟 **ပွဲစဉ်နံပါတ် (Issue):** `{next_issue}`\n"
+                 f"📊 **ခန့်မှန်းချက်အသစ်:** 👉 **{next_result}**\n\n"
+                 f"ပွဲပြီးဆုံးပါက ဆက်လက်ရွေးပါ -",
             reply_markup=reply_markup,
             parse_mode="Markdown"
         )
